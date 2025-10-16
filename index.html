@@ -10,15 +10,44 @@
     font-family: Arial, sans-serif;
     margin: 20px;
   }
-  #markdown-output {
+  #markdown-tabs {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  .tab {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    margin-right: 2px;
+  }
+  .tab.active {
+    background-color: #fff;
+    font-weight: bold;
+  }
+  #markdown-view { /* container for tabs content */
     border: 1px solid #ccc;
     padding: 1em;
+  }
+  #markdown-source, #markdown-output {
+    display: none;
+  }
+  #markdown-source.active, #markdown-output.active {
+    display: block;
   }
 </style>
 </head>
 <body>
 <h1>Markdown Renderer</h1>
-<div id="markdown-output"></div>
+<div id="markdown-tabs">
+  <div class="tab active" data-tab="rendered">Rendered HTML</div>
+  <div class="tab" data-tab="source">Markdown Source</div>
+</div>
+<div id="markdown-view">
+  <div id="markdown-output"></div>
+  <textarea id="markdown-source"></textarea>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script>
@@ -29,12 +58,58 @@ echo "Hello code block!"
 \`\`\`
 `;
 
-const htmlContent = marked.parse(inputMD);
-const outputDiv = document.querySelector("#markdown-output");
-outputDiv.innerHTML = htmlContent;
-document.querySelectorAll('pre code').forEach((block) => {
-  hljs.highlightElement(block);
+const sourceArea = document.getElementById('markdown-source');
+const outputDiv = document.getElementById('markdown-output');
+
+// Initialize source textarea
+sourceArea.value = inputMD;
+
+// Function to render markdown
+function renderMarkdown() {
+  const mdText = sourceArea.value;
+  const htmlContent = marked.parse(mdText);
+  outputDiv.innerHTML = htmlContent;
+  document.querySelectorAll('pre code').forEach((block) => {
+    hljs.highlightElement(block);
+  });
+}
+
+// Initial render
+renderMarkdown();
+
+// Tab switching logic
+const tabs = document.querySelectorAll('.tab');
+const renderedDiv = document.getElementById('markdown-output');
+const sourceTextarea = document.getElementById('markdown-source');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Update active tab styles
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Show/hide content
+    const target = tab.getAttribute('data-tab');
+    if (target === 'rendered') {
+      renderedDiv.classList.add('active');
+      sourceTextarea.classList.remove('active');
+      // Re-render to keep in sync
+      renderMarkdown();
+    } else {
+      renderedDiv.classList.remove('active');
+      sourceTextarea.classList.add('active');
+    }
+  });
 });
+
+// Keep markdown synchronized on input
+sourceArea.addEventListener('input', () => {
+  renderMarkdown();
+});
+
+// Initialize the view
+renderMarkdown();
 </script>
 </body>
 </html>
+```
