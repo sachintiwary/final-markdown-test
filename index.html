@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Markdown to HTML</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" />
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  #markdown-output {
+    border: 1px solid #ccc;
+    padding: 1em;
+  }
+</style>
+</head>
+<body>
+<h1>Markdown Renderer</h1>
+<div id="markdown-output"></div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>
+const inputMD = `# Hello
+
+\`\`\`bash
+echo "Hello code block!"
+\`\`\`
+`;
+
+const htmlContent = marked.parse(inputMD);
+const outputDiv = document.querySelector("#markdown-output");
+outputDiv.innerHTML = htmlContent;
+document.querySelectorAll('pre code').forEach((block) => {
+  hljs.highlightElement(block);
+});
+</script>
+</body>
+</html>
